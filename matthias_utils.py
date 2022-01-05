@@ -54,7 +54,7 @@ class MaskExtractor():
     CATEGORY_IDS = COCO.getCatIds()  # get all categories
 
     IOU_FILE_PATH = os.path.join(RESULT_FILES_PATH, "ground_truth_ious.json")
-    IOU_DICT = {}
+    iou_dict = {}
 
     def __init__(self, global_rgb_image, image_id):
         """[summary]
@@ -96,12 +96,12 @@ class MaskExtractor():
     def save_iou(self, proposal_number, global_proposal_mask):
         iou = calc_iou(global_proposal_mask, self.global_ground_truth_mask_1)
         key = format(self.image_id, '012d') + "_" + format(proposal_number, '06d')
-        self.IOU_DICT[key] = iou
+        self.iou_dict[key] = iou
 
     @classmethod
     def finalize_iou_file(cls):
         with open(cls.IOU_FILE_PATH, 'w') as filepath:
-            json.dump(cls.IOU_DICT, filepath)
+            json.dump(cls.iou_dict, filepath)
 
     def save_global_rgb_image(self):
         # TODO name it so it will be listed on top

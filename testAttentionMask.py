@@ -30,8 +30,6 @@ from utils import gen_masks_new
 from PIL import Image
 from matthias_utils import MaskExtractor
 import numpy as np
-ANNOTATIONS_PATH = "/data_c/coco/annotations"
-
 
 
 '''

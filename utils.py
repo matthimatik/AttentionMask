@@ -140,10 +140,6 @@ def gen_masks_new(net, input, config, dest_shape=None, mask_extractor=None):
             mask_extractor.save_local_ground_truth_mask_image(xb, xe, yb, ye, proposal_id)
             mask_extractor.save_iou(proposal_id, ret_masks[_])
 
-            # matthias_utils.export_local_mask_as_img(mask, image_id, int(topk))
-            # matthias_utils.generate_window_mask(ret_masks.shape[1], ret_masks.shape[2], xb,xe, yb,ye, image_id, int(topk))
-            # matthias_utils.export_local_img(image, ret_masks.shape[1], ret_masks.shape[2], xb,xe, yb,ye, image_id, int(topk))
-            # matthias_utils.export_ground_truth_local_mask(image, ret_masks.shape[1], ret_masks.shape[2], xb,xe, yb,ye, image_id, int(topk), ann_dict)
     
             ret_scores[_] = score
             _ += 1
