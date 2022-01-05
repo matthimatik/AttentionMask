@@ -27,6 +27,13 @@ from config import *
 
 from utils import gen_masks_new
 
+from PIL import Image
+from matthias_utils import MaskExtractor
+import numpy as np
+ANNOTATIONS_PATH = "/data_c/coco/annotations"
+
+
+
 '''
 python test.py gpu_id model [--init_weights=*.caffemodel] [--dataset=val2014] \
                             [--end=5000]
@@ -75,14 +82,20 @@ if __name__ == '__main__':
     spider.dataset.sort(key=lambda item: int(item.image_path[-10:-4]))
     ds = spider.dataset[:args.end]
 
+
     results = []
     for i in range(len(ds)):
         spider.fetch()
         img = spider.img_blob
         image_id = int(ds[i].image_path[-10:-4])
 
+        rgb_image = Image.open(ds[i].image_path)
+        rgb_image_array = np.asarray(rgb_image)
+
+        mask_extractor = MaskExtractor(rgb_image_array, image_id)
+
         ret = gen_masks_new(net, img, config, 
-                dest_shape=(spider.origin_height, spider.origin_width)) 
+                dest_shape=(spider.origin_height, spider.origin_width), mask_extractor=mask_extractor) 
         ret_masks, ret_scores = ret
 
         printProgress(i, len(ds), prefix='Progress: ', suffix='Complete', barLength=50)
@@ -97,6 +110,8 @@ if __name__ == '__main__':
                 'score': score,
                 'objn': objn
                 })
+
+    MaskExtractor.finalize_iou_file()
 
     with open('results/%s.json' % args.model, "wb") as f:
         f.write(cjson.encode(results))
