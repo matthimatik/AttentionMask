@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Extract att mask",
+            "type": "python",
+            "request": "launch",
+            "program": "testAttentionMask.py",
+            "args": [
+                "0",
+                "attentionMask-8-128",
+                "--init_weights",
+                "attentionmask-8-128final.caffemodel",
+                "--dataset",
+                "train2014",
+                "--end",
+                "2"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "evalCOCO",
+            "type": "python",
+            "request": "launch",
+            "program": "evalCOCO.py",
+            "args": [
+                "attentionMask-8-128",
+                "--end",
+                "2"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
