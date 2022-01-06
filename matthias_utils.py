@@ -18,9 +18,12 @@ def count_occourences(array):
 
 
 def union_mask(mask1, mask2):
-    union_mask = np.zeros_like(mask1)
-    union_mask[mask1 + mask2 > 0] = 1
-    return union_mask
+    # union_mask = np.zeros_like(mask1)
+    # mask1[mask1 == 255] = 1
+    # mask2[mask2 == 255] = 1
+    # union_mask[mask1 + mask2 > 0] = 1
+    final_mask = np.logical_or(mask1, mask2)
+    return final_mask
 
 
 def intersection_mask(mask1, mask2):
@@ -93,8 +96,8 @@ class MaskExtractor():
         self.save_global_rgb_image()
         self.save_global_ground_truth_mask_image()
 
-    def save_iou(self, proposal_number, global_proposal_mask):
-        iou = calc_iou(global_proposal_mask, self.global_ground_truth_mask_1)
+    def save_iou(self, proposal_number, local_proposal_mask):
+        iou = calc_iou(local_proposal_mask, self.local_ground_truth_mask_image)
         key = format(self.image_id, '012d') + "_" + format(proposal_number, '06d')
         self.iou_dict[key] = iou
 
@@ -141,6 +144,10 @@ class MaskExtractor():
     #     self.save_local_mask_image(xb, xe, yb, ye, proposal_number)
     #     self.save_local_ground_truth_mask_image(xb, xe, yb, ye, proposal_number)
 
+def save_mask_as_image(mask, path):
+    if mask.max() < 2:
+        mask * 255
+    save_array_as_image(mask, path)
 
 def save_array_as_image(image, path):
     image = Image.fromarray(image)

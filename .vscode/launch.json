@@ -17,7 +17,7 @@
                 "--dataset",
                 "train2014",
                 "--end",
-                "2"
+                "5"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
@@ -30,7 +30,9 @@
             "args": [
                 "attentionMask-8-128",
                 "--end",
-                "2"
+                "2",
+                "--dataset",
+                "train2014"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

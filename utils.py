@@ -138,7 +138,7 @@ def gen_masks_new(net, input, config, dest_shape=None, mask_extractor=None):
             mask_extractor.save_local_mask_image(mask, proposal_id)
             mask_extractor.save_local_rgb_image(xb, xe, yb, ye, proposal_id)
             mask_extractor.save_local_ground_truth_mask_image(xb, xe, yb, ye, proposal_id)
-            mask_extractor.save_iou(proposal_id, ret_masks[_])
+            mask_extractor.save_iou(proposal_id, mask)
 
     
             ret_scores[_] = score
