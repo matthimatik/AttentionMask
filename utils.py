@@ -7,6 +7,8 @@ Modified version of the original code from Hu et al.
 '''
 
 from __future__ import division
+from alchemy.utils import mask as mask_util
+
 import numpy as np
 
 from alchemy.utils.image import resize_blob
@@ -132,16 +134,13 @@ def gen_masks_new(net, input, config, dest_shape=None, mask_extractor=None):
             mask[mask >= 0.2] = 1
             ret_masks[_, xb:xe, yb:ye] = mask
 
-            current_ret_mask = ret_masks[_, xb:xe, yb:ye]
 
             proposal_id = int(topk)
-            mask_extractor.save_local_mask_image(mask, proposal_id)
-            mask_extractor.save_local_rgb_image(xb, xe, yb, ye, proposal_id)
-            mask_extractor.save_local_ground_truth_mask_image(xb, xe, yb, ye, proposal_id)
-            mask_extractor.save_iou(proposal_id, mask)
+            current_ret_mask = ret_masks[_, xb:xe, yb:ye]
+            mask_extractor.add_entry(proposal_id, xb, xe, yb, ye, mask_util.encode(current_ret_mask))
 
     
             ret_scores[_] = score
             _ += 1
         
-    return ret_masks, ret_scores
+    return ret_masks, ret_scores, proposal_id

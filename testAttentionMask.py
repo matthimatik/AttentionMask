@@ -90,11 +90,10 @@ if __name__ == '__main__':
         rgb_image = Image.open(ds[i].image_path)
         rgb_image_array = np.asarray(rgb_image)
 
-        mask_extractor = MaskExtractor(rgb_image_array, image_id)
+        mask_extractor = MaskExtractor(image_id)
 
-        ret = gen_masks_new(net, img, config, 
+        ret_masks, ret_scores, proposal_id = gen_masks_new(net, img, config, 
                 dest_shape=(spider.origin_height, spider.origin_width), mask_extractor=mask_extractor) 
-        ret_masks, ret_scores = ret
 
         printProgress(i, len(ds), prefix='Progress: ', suffix='Complete', barLength=50)
         for _ in range(len(ret_masks)):
@@ -102,6 +101,7 @@ if __name__ == '__main__':
             objn = float(ret_scores[_])
             results.append({
                 'image_id': image_id,
+                'proposal_id': proposal_id,
                 'category_id': 1, #as we are doing class-agnostic proposal 
                                   #generation, cat_id is irrelevant
                 'segmentation': encode(ret_masks[_]),
@@ -109,7 +109,7 @@ if __name__ == '__main__':
                 'objn': objn
                 })
 
-    MaskExtractor.finalize_iou_file()
+    MaskExtractor.save_results_file()
 
     with open('results/%s.json' % args.model, "wb") as f:
         f.write(cjson.encode(results))

@@ -17,7 +17,7 @@
                 "--dataset",
                 "train2014",
                 "--end",
-                "5"
+                "1"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
