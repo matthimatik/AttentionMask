@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "testAttentionMask.py",
             "args": [
-                "1",
+                "0",
                 "attentionMask-8-128",
                 "--init_weights",
                 "attentionmask-8-128final.caffemodel",
@@ -20,7 +20,10 @@
                 "1"
             ],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
         },
         {
             "name": "evalCOCO",
