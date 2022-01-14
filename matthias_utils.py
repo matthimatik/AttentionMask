@@ -40,7 +40,7 @@ def count_occourences(array):
 class MaskExtractor():
 
     ANNOTATION_FILE_PATH = ANNOTATION_FILE_FORMAT % ANNOTATION_TYPE
-    RESULT_FILES_PATH = "/data_c/8hirsch/att_mask_extraction/%s/" % MY_RESULTS_FOLDER
+    RESULT_FILES_PATH = "/data2/8hirsch/att_mask_extraction/%s/" % MY_RESULTS_FOLDER
 
     COCO = coco.COCO(ANNOTATION_FILE_PATH)
     CATEGORY_IDS = COCO.getCatIds()  # get all categories
@@ -58,7 +58,10 @@ class MaskExtractor():
             # TODO this causes an error sometimes
             anns_img = np.maximum(anns_img, self.COCO.annToMask(ann))
 
-        self.rle_global_ground_truth_mask = mask_util.encode(anns_img.astype(np.uint8))
+        self.global_ground_truth_mask = anns_img.astype(np.uint8)
+
+    def local_gt_mask(self, x_begin, x_end, y_begin, y_end):
+        return self.global_ground_truth_mask[x_begin, x_end, y_begin, y_end]
 
     def add_entry(self, proposal_id, x_begin, x_end, y_begin, y_end, local_proposal_mask):
         """Adds an entry for given proposal to the results dict.
@@ -72,8 +75,11 @@ class MaskExtractor():
             local_proposal_mask (dict): a lre-encoded mask 
         """
         key = format(self.image_id, '012d') + "_" + format(proposal_id, '06d')
+
+        local_gt_mask = self.global_ground_truth_mask[x_begin, x_end, y_begin, y_end]
+        rle_local_gt_mask = mask_util.encode(local_gt_mask)
+        iou = mask_util.iou(local_proposal_mask,rle_local_gt_mask, [1])
         bbox = [x_begin, x_end, y_begin, y_end]
-        iou = mask_util.iou(self.rle_global_ground_truth_mask, local_proposal_mask)
         self.results[key] = {
             "bbox": bbox, 
             "mask": local_proposal_mask,

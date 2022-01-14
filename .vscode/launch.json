@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "testAttentionMask.py",
             "args": [
-                "0",
+                "1",
                 "attentionMask-8-128",
                 "--init_weights",
                 "attentionmask-8-128final.caffemodel",
