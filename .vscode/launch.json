@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Extract att mask",
+            "name": "testAttentionMask",
             "type": "python",
             "request": "launch",
             "program": "testAttentionMask.py",
