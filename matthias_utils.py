@@ -30,7 +30,19 @@ from alchemy.utils import mask as mask_util
 import numpy
 import numpy as np
 
-from config import ANNOTATION_FILE_FORMAT, ANNOTATION_TYPE, MY_RESULTS_FOLDER
+from config import ANNOTATION_FILE_FORMAT, ANNOTATION_TYPE, MY_RESULTS_FILE_NAME
+
+
+def binaryMaskIOU(mask1, mask2):   # From the question.
+    mask1_area = np.count_nonzero(mask1 == 1)
+    mask2_area = np.count_nonzero(mask2 == 1)
+    intersection = np.count_nonzero(np.logical_and( mask1==1,  mask2==1 ))
+    try:
+        iou = float(intersection)/(mask1_area+mask2_area-intersection)
+    except ZeroDivisionError:
+        return 0
+    return iou
+
 
 
 def count_occourences(array):
@@ -40,12 +52,11 @@ def count_occourences(array):
 class MaskExtractor():
 
     ANNOTATION_FILE_PATH = ANNOTATION_FILE_FORMAT % ANNOTATION_TYPE
-    RESULT_FILES_PATH = "/data2/8hirsch/att_mask_extraction/%s/" % MY_RESULTS_FOLDER
+    RESULT_FILE_PATH = "/data2/8hirsch/att_mask_extraction/%s" % MY_RESULTS_FILE_NAME
 
     COCO = coco.COCO(ANNOTATION_FILE_PATH)
     CATEGORY_IDS = COCO.getCatIds()  # get all categories
 
-    RESULTS_FILE_PATH = os.path.join(RESULT_FILES_PATH, "results.json")
     results = {}
 
     def __init__(self, image_id):
@@ -53,6 +64,10 @@ class MaskExtractor():
 
         anns_ids = self.COCO.getAnnIds(imgIds=image_id, catIds=self.CATEGORY_IDS, iscrowd=None)
         anns = self.COCO.loadAnns(anns_ids)
+        self.invalid = False
+        if not anns:
+            self.invalid = True
+            return
         anns_img = np.zeros_like(self.COCO.annToMask(anns[0]))
         for ann in anns:
             # TODO this causes an error sometimes
@@ -61,7 +76,7 @@ class MaskExtractor():
         self.global_ground_truth_mask = anns_img.astype(np.uint8)
 
     def local_gt_mask(self, x_begin, x_end, y_begin, y_end):
-        return self.global_ground_truth_mask[x_begin, x_end, y_begin, y_end]
+        return self.global_ground_truth_mask[x_begin: x_end, y_begin: y_end]
 
     def add_entry(self, proposal_id, x_begin, x_end, y_begin, y_end, local_proposal_mask):
         """Adds an entry for given proposal to the results dict.
@@ -74,19 +89,23 @@ class MaskExtractor():
             proposal_id (int): id of proposal
             local_proposal_mask (dict): a lre-encoded mask 
         """
+        if self.invalid:
+            return
         key = format(self.image_id, '012d') + "_" + format(proposal_id, '06d')
 
-        local_gt_mask = self.global_ground_truth_mask[x_begin, x_end, y_begin, y_end]
-        rle_local_gt_mask = mask_util.encode(local_gt_mask)
-        iou = mask_util.iou(local_proposal_mask,rle_local_gt_mask, [1])
+        local_gt_mask = self.global_ground_truth_mask[x_begin: x_end, y_begin: y_end]
+        # rle_local_gt_mask = mask_util.encode(local_gt_mask)
+        rle_local_proposal_mask = mask_util.encode(local_proposal_mask)
+        # iou = mask_util.iou(rle_local_proposal_mask, rle_local_gt_mask, [1])
+        iou = binaryMaskIOU(local_gt_mask, local_proposal_mask)
         bbox = [x_begin, x_end, y_begin, y_end]
         self.results[key] = {
             "bbox": bbox, 
-            "mask": local_proposal_mask,
+            "mask": rle_local_proposal_mask,
             "iou": iou
         }
 
     @classmethod
     def save_results_file(cls):
-        with open(cls.RESULTS_FILE_PATH, 'w') as filepath:
+        with open(cls.RESULT_FILE_PATH, 'w') as filepath:
             json.dump(cls.results, filepath)

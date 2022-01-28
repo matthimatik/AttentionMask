@@ -132,12 +132,12 @@ def gen_masks_new(net, input, config, dest_shape=None, mask_extractor=None):
             ye = min(ow, ye)
             mask[mask < 0.2] = 0
             mask[mask >= 0.2] = 1
-            ret_masks[_, xb:xe, yb:ye] = mask
+            ret_masks[_, xb:xe, yb:ye] = mask # ret_masks.shape: 1000 x global_height x global_width
 
 
             proposal_id = int(topk)
             current_ret_mask = ret_masks[_, xb:xe, yb:ye]
-            mask_extractor.add_entry(proposal_id, xb, xe, yb, ye, mask_util.encode(current_ret_mask))
+            mask_extractor.add_entry(proposal_id, xb, xe, yb, ye, current_ret_mask)
 
     
             ret_scores[_] = score
