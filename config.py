@@ -8,9 +8,9 @@ Modified version of the original code from Hu et al.
 RGB_MEAN = [123.68, 116.779, 103.939]
 IMAGE_PATH_FORMAT = "data/coco/%s/%s"
 IMAGE_NAME_FORMAT = "COCO_%s_%012d.jpg"
-IMAGE_SET = "train2014"
-ANNOTATION_TYPE = "train2014"
-MY_RESULTS_FOLDER = "train"
+IMAGE_SET = "subVal2014_2"
+ANNOTATION_TYPE = "subVal2014_2"
+MY_RESULTS_FILE_NAME = "val.json"
 ANNOTATION_FILE_FORMAT = "./data/coco/annotations/instances_%s.json"
 SLIDING_WINDOW_SIZE = 10
 MASK_SIZE = 40

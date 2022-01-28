@@ -20,4 +20,4 @@ Setup:
 16: link ./data/coco to .../coco 
 
 Run:
-`python2 testAttentionMask.py 0 attentionMask-8-128 --init_weights attentionmask-8-128final.caffemodel --dataset train2014 --end 5000`
+`python2 testAttentionMask.py 0 attentionMask-8-128 --init_weights attentionmask-8-128final.caffemodel --dataset subVal2014_2 --end 5000`
