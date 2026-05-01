@@ -56,11 +56,21 @@ if __name__ == '__main__':
     max_dets = [1, 10, 100, 1000]
     i = 1
 
+    config.ANNOTATION_TYPE = args.dataset
+    config.IMAGE_SET = args.dataset
+    from spiders.coco_ssm_spider import COCOSSMDemoSpider
+    spider = COCOSSMDemoSpider()
+    ds = spider.dataset
+
+    cocoGt = ds
+
+    indexes = set(sorted(cocoGt.getImgIds())[:args.end])
+
     with open('results/%s.json' % args.model, 'rb') as f:
         input_results = cjson.decode(f.read())
         # region only preprocess the number of proposals, that are specified by --end
         # TODO
-        input_results = [x for x in input_results if x["image_id"] == 71302]
+        input_results = [x for x in input_results if x["image_id"] in indexes]
         # endregion
         results = []
         _ = 0
@@ -99,14 +109,6 @@ if __name__ == '__main__':
     with open("results/%s_temp.json" % args.model, 'wb') as f:
         f.write(cjson.encode(results))
 
-
-    config.ANNOTATION_TYPE = args.dataset
-    config.IMAGE_SET = args.dataset
-    from spiders.coco_ssm_spider import COCOSSMDemoSpider
-    spider = COCOSSMDemoSpider()
-    ds = spider.dataset
-
-    cocoGt = ds
     cocoDt = cocoGt.loadRes("results/%s_temp.json" % args.model)
     cocoEval = COCOeval(cocoGt, cocoDt)
 

@@ -111,4 +111,7 @@ if __name__ == '__main__':
 
     img_org = img_org.astype(np.uint8)
     cv2.imshow('image', img_org)
+    from PIL import Image
+    im = Image.fromarray(img_org)
+    im.save("demo_img.jpeg")
     cv2.waitKey(100000)

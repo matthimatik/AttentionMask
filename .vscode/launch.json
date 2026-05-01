@@ -5,6 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "demo.py",
+            "type": "python",
+            "request": "launch",
+            "program": "demo.py",
+            "args": [
+                "0",
+                "attentionMask-8-128",
+                "/data_b/coco/subVal2014_2/COCO_subVal2014_2_000000380639.jpg",
+                "--init_weights",
+                "attentionmask-8-128final.caffemodel",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
             "name": "testAttentionMask",
             "type": "python",
             "request": "launch",
@@ -15,14 +33,14 @@
                 "--init_weights",
                 "attentionmask-8-128final.caffemodel",
                 "--dataset",
-                "train2014",
+                "subVal2014_2",
                 "--end",
-                "100"
+                "5000"
             ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
+                "CUDA_VISIBLE_DEVICES": "1"
             }
         },
         {
@@ -33,12 +51,79 @@
             "args": [
                 "attentionMask-8-128",
                 "--end",
-                "2",
+                "500",
                 "--dataset",
-                "train2014"
+                "subVal2014_2"
             ],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            }
+        },
+        {
+            "name": "fast_evalCOCO",
+            "type": "python",
+            "request": "launch",
+            "program": "fast_evalCOCO.py",
+            "args": [
+                "attentionMask-8-128",
+                "--end",
+                "10",
+                "--dataset",
+                "subVal2014_2",
+                "--nms_threshold",
+                "0.7"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            }
+        },
+        {
+            "name": "para_fast_evalCOCO",
+            "type": "python",
+            "request": "launch",
+            "program": "para_fastEvalCOCO.py",
+            "args": [
+                "attentionMask-8-128",
+                "--end",
+                "10",
+                "--dataset",
+                "subVal2014_2",
+                "--nms_threshold",
+                "0.7"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            }
+        },
+        {
+            "name": "evalCOCO_nms_spx",
+            "type": "python",
+            "request": "launch",
+            "program": "eval_coco_nms_spx.py",
+            "args": [
+                "attentionMask-8-128",
+                "--end",
+                "500",
+                "--nms_threshold",
+                "0.7",
+                "--dataset",
+                "subVal2014_2",
+                "--max_proposal",
+                "100",
+                "--num_workers",
+                "10"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            }
         }
     ]
 }

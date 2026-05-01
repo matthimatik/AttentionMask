@@ -21,38 +21,23 @@ Input: image_id, proposal_id
 
 """
 import json
-import os
-import numpy
 
-from pycocotools import coco
-from alchemy.utils import mask as mask_util
+from pycocotools import coco, mask as mask_util
+from alchemy.utils.mask import encode
 
-import numpy
+
 import numpy as np
 
-from config import ANNOTATION_FILE_FORMAT, ANNOTATION_TYPE, MY_RESULTS_FILE_NAME
 
-
-def binaryMaskIOU(mask1, mask2):   # From the question.
-    mask1_area = np.count_nonzero(mask1 == 1)
-    mask2_area = np.count_nonzero(mask2 == 1)
-    intersection = np.count_nonzero(np.logical_and( mask1==1,  mask2==1 ))
-    try:
-        iou = float(intersection)/(mask1_area+mask2_area-intersection)
-    except ZeroDivisionError:
-        return 0
-    return iou
-
-
+from config import ANNOTATION_FILE_FORMAT, ANNOTATION_TYPE, RESULT_FILE_PATH
 
 def count_occourences(array):
-    unique, counts = numpy.unique(array, return_counts=True)
+    unique, counts = np.unique(array, return_counts=True)
     return dict(zip(unique, counts))
 
 class MaskExtractor():
 
     ANNOTATION_FILE_PATH = ANNOTATION_FILE_FORMAT % ANNOTATION_TYPE
-    RESULT_FILE_PATH = "/data2/8hirsch/att_mask_extraction/%s" % MY_RESULTS_FILE_NAME
 
     COCO = coco.COCO(ANNOTATION_FILE_PATH)
     CATEGORY_IDS = COCO.getCatIds()  # get all categories
@@ -75,10 +60,7 @@ class MaskExtractor():
 
         self.global_ground_truth_mask = anns_img.astype(np.uint8)
 
-    def local_gt_mask(self, x_begin, x_end, y_begin, y_end):
-        return self.global_ground_truth_mask[x_begin: x_end, y_begin: y_end]
-
-    def add_entry(self, proposal_id, x_begin, x_end, y_begin, y_end, local_proposal_mask):
+    def add_entry(self, image_id, proposal_id, x_begin, x_end, y_begin, y_end, local_proposal_mask, full_segmentation, att_score):
         """Adds an entry for given proposal to the results dict.
 
         Args:
@@ -94,18 +76,23 @@ class MaskExtractor():
         key = format(self.image_id, '012d') + "_" + format(proposal_id, '06d')
 
         local_gt_mask = self.global_ground_truth_mask[x_begin: x_end, y_begin: y_end]
-        # rle_local_gt_mask = mask_util.encode(local_gt_mask)
-        rle_local_proposal_mask = mask_util.encode(local_proposal_mask)
-        # iou = mask_util.iou(rle_local_proposal_mask, rle_local_gt_mask, [1])
-        iou = binaryMaskIOU(local_gt_mask, local_proposal_mask)
+        rle_local_gt_mask = mask_util.encode(np.asfortranarray(local_gt_mask))
+        rle_local_proposal_mask = mask_util.encode(np.asfortranarray(local_proposal_mask))
+        iou = mask_util.iou([rle_local_gt_mask], [rle_local_proposal_mask], [0]).flatten()[0]
         bbox = [x_begin, x_end, y_begin, y_end]
         self.results[key] = {
-            "bbox": bbox, 
+            "image_id": image_id,
+            "proposal_id": proposal_id,
+            "category_id": 1,
+            "segmentation": encode(full_segmentation),
             "mask": rle_local_proposal_mask,
-            "iou": iou
+            "bbox": bbox, 
+            "iou": iou,
+            "score": att_score,
         }
 
     @classmethod
     def save_results_file(cls):
-        with open(cls.RESULT_FILE_PATH, 'w') as filepath:
+        with open(RESULT_FILE_PATH, 'w') as filepath:
             json.dump(cls.results, filepath)
+        pass

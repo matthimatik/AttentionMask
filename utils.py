@@ -65,7 +65,7 @@ def interp(net, layers):
 # :param dest_shape:    resize masks if specified
 # :param image:         visualize masks if specified
 # :return masks:        masks ([num, h, w])
-def gen_masks_new(net, input, config, dest_shape=None, mask_extractor=None):
+def gen_masks_new(net, input, config, dest_shape=None, mask_extractor=None, image_id=None):
     net.blobs['data'].reshape(*input.shape)
     net.blobs['data'].data[...] = input
 
@@ -137,10 +137,22 @@ def gen_masks_new(net, input, config, dest_shape=None, mask_extractor=None):
 
             proposal_id = int(topk)
             current_ret_mask = ret_masks[_, xb:xe, yb:ye]
-            mask_extractor.add_entry(proposal_id, xb, xe, yb, ye, current_ret_mask)
+            # mask_extractor.add_entry(proposal_id, xb, xe, yb, ye, current_ret_mask)
+            if mask_extractor:
+                mask_extractor.add_entry(
+                    image_id=image_id,
+                    proposal_id=proposal_id, 
+                    x_begin=xb,
+                    x_end=xe,
+                    y_begin=yb,
+                    y_end=ye,
+                    local_proposal_mask=current_ret_mask,
+                    full_segmentation=ret_masks[_],
+                    att_score=score
+                )
 
     
             ret_scores[_] = score
             _ += 1
         
-    return ret_masks, ret_scores, proposal_id
+    return ret_masks, ret_scores

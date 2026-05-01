@@ -39,7 +39,10 @@ if __name__ == '__main__':
     ds = spider.dataset
 
     cocoGt = ds
-    cocoDt = cocoGt.loadRes("results/%s.json" % args.model)
+    # cocoDt = cocoGt.loadRes("results/%s.json" % args.model)
+    cocoDt = cocoGt.loadRes("/data_b/8hirsch/AttentionMask/results/attentionMask-8-128.json")
+    # cocoDt = cocoGt.loadRes("/data_b/8hirsch/att_mask_extraction/new/val_as_list.json")
+    
     cocoEval = COCOeval(cocoGt, cocoDt)
 
     cocoEval.params.imgIds = sorted(cocoGt.getImgIds())[:args.end]
